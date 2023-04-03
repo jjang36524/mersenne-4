@@ -1,6 +1,9 @@
 ﻿#include <smmintrin.h>
 #include <immintrin.h>
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <chrono>
+#include <iostream>
+#include <vector>
 using namespace std;
 #define int long long
 #pragma GCC target("avx2")
@@ -63,8 +66,8 @@ vector<int> multiply(vector<int>& v, vector<int>& w) {
 	for (int i = 0; i < n; ++i) ret[i] = (int)round(fv[i].m128d_f64[1] / 2);
 	delete[] fv;
 	return ret;
-}
-struct bs {
+}//위의 코드는 단순히 fft 알고리즘을 구현한 코드
+struct bs {//큰 수 구조체
 	vector<int>arr;
 	bs() {
 
@@ -72,6 +75,7 @@ struct bs {
 	bs(int n) {
 		arr.resize((n >> 3) + 1);
 	}
+	//생성자(n비트 큰 수 만듦)
 	void setnb(int n, int k)
 	{
 		arr[n >> 3] &= (255 - (1 << (n & 7)));
@@ -80,10 +84,12 @@ struct bs {
 			arr[n >> 3] += (1 << (n & 7));
 		}
 	}
+	//n번째 비트를 k로 바꿈
 	int getnb(int n)
 	{
 		return !!(arr[n >> 3] & (1 << (n & 7)));
 	}
+	//n번째 비트 가져옴
 	void mod(int n)
 	{
 		int s = arr.size();
@@ -124,6 +130,7 @@ struct bs {
 			}
 		}
 	}
+	//2^p-1로 나눈 나머지를 비트연산으로 빠르게 구함
 };
 bs mult(bs a, bs b, int n)
 {
@@ -140,7 +147,7 @@ bs mult(bs a, bs b, int n)
 	t.mod(n);
 	t.arr.resize((n / 8) + 1);
 	return t;
-}
+}//큰 수 a와 b 곱함
 bs min2(bs a, int n)
 {
 	int i;
@@ -159,6 +166,7 @@ bs min2(bs a, int n)
 	a.arr.resize((n / 8) + 1);
 	return a;
 }
+//2를 빼주는 함수
 signed main()
 {
 	while (1)
@@ -169,15 +177,15 @@ signed main()
 		int i;
 		bs an(N);
 		an.arr[0] = 4;
-		for (i = 0; i < N - 2; i++)
+		for (i = 0; i < N - 2; i++)//루카스-레머 방법 메인 반복문
 		{
 			an = mult(an, an, N);
 			an = min2(an, N);
 			if (i % 1000 == 0)
-				cout << i << '\n';
+				cout << i << '\n';//현재 상황 표시기
 		}
 		for (i = 0; i < 5; i++)
-			cout << an.arr[i] << ' ';
+			cout << an.arr[i] << ' ';//이 5개가 모두 0이면 소수
 		cout << '\n';
 		auto finish = chrono::high_resolution_clock::now();
 		cout << chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / (1000000.0) << "밀리초\n";
